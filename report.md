@@ -11,23 +11,23 @@ I aim for accuracy greater than 99.5%.
 
 ## 2. Models overview
 
-Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, training and validation accuracies\* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the **best accuracy** on the cross validation set is in **bold** font. This algorithm was later applied to the test data.
+Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, cross validation accuracies\* (accuracy = 1 - out_of_sample_error), type of cross validation and a brief comment. The cross-validated model with the **best accuracy** on the cross validation set is in **bold** font. This algorithm was later applied to the test data.
 
 \* the original data set was split in 60%-20%-20% manner between training, cross validation and test sets, respectively
 
 ### 2.a. Training and cross validation data set accuracy estimation
 
 
-No. | Algorithm        | Training accuracy | CV accuracy | CV used | Comments
-----|------------------|-------------------|-------------|---------|---------
-1.  | single tree1     | 1.0 | 0.6721 | 2-fold | all persons are predicted with a single tree (i.e. one confusion matrix); this results remains roughly the same whether or not the *user_name* variable is included in the predictors;  10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied
-2.  | single tree2     | 1.0 | 0.9782 | 2-fold | each person is predicted with an individual tree, and the overall accuracy of all 6 trees is presented (i.e. six confusion matrices are summed together and the overall result is presented); 10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied
-3.  | bagged tree1     | 1.0 | 0.9562 | 2-fold  | all persons are predicted with a model with 6 trees only
-4.  | random forest1   | 1.0 | 0.9602 | 2-fold | all persons are predicted with a single random forest of 6 trees, 7 variables per node (i.e. approximate half of the number of predictors)
-5.  | random forest2   | 1.0 | 0.9852 | 2-fold   | all persons are predicted with a single random forest of 500 trees, 7 variables per node (i.e. approximate of the square root of the number of predictors)
-6.  | random forest3   | 1.0 | 0.9831 | 2-fold | all persons are predicted with a single random forest of 500 trees, 27 variables per node (i.e. approximate half of the number of predictors)
-7. | random forest4 | 1.0 | 0.9858   | 2-fold | all persons are predicted with a single random forest of 500 trees, 3 variables per node
-**8.**  | **bagged tree2** | **1.0** | **0.9977** | **2-fold** | **all persons are predicted with a model with 500 trees**
+No. | Algorithm        | CV accuracy | CV used | Comments
+----|------------------|-------------|---------|---------
+1.  | single tree1     | 0.6721 | 2-fold | all persons are predicted with a single tree (i.e. one confusion matrix); this results remains roughly the same whether or not the *user_name* variable is included in the predictors;  10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied
+2.  | single tree2     | 0.9782 | 2-fold | each person is predicted with an individual tree, and the overall accuracy of all 6 trees is presented (i.e. six confusion matrices are summed together and the overall result is presented); 10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied
+3.  | bagged tree1     |0.9562 | 2-fold  | all persons are predicted with a model with 6 trees only
+4.  | random forest1   | 0.9602 | 2-fold | all persons are predicted with a single random forest of 6 trees, 7 variables per node (i.e. approximate half of the number of predictors)
+5.  | random forest2   | 0.9852 | 2-fold   | all persons are predicted with a single random forest of 500 trees, 7 variables per node (i.e. approximate of the square root of the number of predictors)
+6.  | random forest3   | 0.9831 | 2-fold | all persons are predicted with a single random forest of 500 trees, 27 variables per node (i.e. approximate half of the number of predictors)
+7. | random forest4 | 0.9858   | 2-fold | all persons are predicted with a single random forest of 500 trees, 3 variables per node
+**8.**  | **bagged tree2** | **0.9977** | **2-fold** | **all persons are predicted with a model with 500 trees**
 
 
 ## 3. Models building

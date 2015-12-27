@@ -70,7 +70,7 @@ img {
 </div>
 <div id="models-overview" class="section level2">
 <h2>2. Models overview</h2>
-<p>Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, training and validation accuracies* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the <strong>best accuracy</strong> on the cross validation set is in <strong>bold</strong> font. This algorithm was later applied to the test data.</p>
+<p>Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, cross validation accuracies* (accuracy = 1 - out_of_sample_error), type of cross validation and a brief comment. The cross-validated model with the <strong>best accuracy</strong> on the cross validation set is in <strong>bold</strong> font. This algorithm was later applied to the test data.</p>
 <p>* the original data set was split in 60%-20%-20% manner between training, cross validation and test sets, respectively</p>
 <div id="a.-training-and-cross-validation-data-set-accuracy-estimation" class="section level3">
 <h3>2.a. Training and cross validation data set accuracy estimation</h3>
@@ -79,7 +79,6 @@ img {
 <tr class="header">
 <th align="left">No.</th>
 <th align="left">Algorithm</th>
-<th align="left">Training accuracy</th>
 <th align="left">CV accuracy</th>
 <th align="left">CV used</th>
 <th align="left">Comments</th>
@@ -89,7 +88,6 @@ img {
 <tr class="odd">
 <td align="left">1.</td>
 <td align="left">single tree1</td>
-<td align="left">1.0</td>
 <td align="left">0.6721</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a single tree (i.e. one confusion matrix); this results remains roughly the same whether or not the <em>user_name</em> variable is included in the predictors; 10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied</td>
@@ -97,7 +95,6 @@ img {
 <tr class="even">
 <td align="left">2.</td>
 <td align="left">single tree2</td>
-<td align="left">1.0</td>
 <td align="left">0.9782</td>
 <td align="left">2-fold</td>
 <td align="left">each person is predicted with an individual tree, and the overall accuracy of all 6 trees is presented (i.e. six confusion matrices are summed together and the overall result is presented); 10-fold cross validation used for tree pruning, however the most complex tree was chosen by the algorithm, hence no pruning applied</td>
@@ -105,7 +102,6 @@ img {
 <tr class="odd">
 <td align="left">3.</td>
 <td align="left">bagged tree1</td>
-<td align="left">1.0</td>
 <td align="left">0.9562</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a model with 6 trees only</td>
@@ -113,7 +109,6 @@ img {
 <tr class="even">
 <td align="left">4.</td>
 <td align="left">random forest1</td>
-<td align="left">1.0</td>
 <td align="left">0.9602</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a single random forest of 6 trees, 7 variables per node (i.e. approximate half of the number of predictors)</td>
@@ -121,7 +116,6 @@ img {
 <tr class="odd">
 <td align="left">5.</td>
 <td align="left">random forest2</td>
-<td align="left">1.0</td>
 <td align="left">0.9852</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a single random forest of 500 trees, 7 variables per node (i.e. approximate of the square root of the number of predictors)</td>
@@ -129,7 +123,6 @@ img {
 <tr class="even">
 <td align="left">6.</td>
 <td align="left">random forest3</td>
-<td align="left">1.0</td>
 <td align="left">0.9831</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a single random forest of 500 trees, 27 variables per node (i.e. approximate half of the number of predictors)</td>
@@ -137,7 +130,6 @@ img {
 <tr class="odd">
 <td align="left">7.</td>
 <td align="left">random forest4</td>
-<td align="left">1.0</td>
 <td align="left">0.9858</td>
 <td align="left">2-fold</td>
 <td align="left">all persons are predicted with a single random forest of 500 trees, 3 variables per node</td>
@@ -145,7 +137,6 @@ img {
 <tr class="even">
 <td align="left"><strong>8.</strong></td>
 <td align="left"><strong>bagged tree2</strong></td>
-<td align="left"><strong>1.0</strong></td>
 <td align="left"><strong>0.9977</strong></td>
 <td align="left"><strong>2-fold</strong></td>
 <td align="left"><strong>all persons are predicted with a model with 500 trees</strong></td>
