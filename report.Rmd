@@ -16,13 +16,12 @@ I aim for accuracy greater than 99.5%.
 
 ## 2. Models overview
 
-Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, test and validation accuracies\* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the **best accuracy** on the cross validation set is in **bold** font. This algorithm was later applied to the test data.
+Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, training and validation accuracies\* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the **best accuracy** on the cross validation set is in **bold** font. This algorithm was later applied to the test data.
 
-\* 30% of the original training data was used as cross validation data; the original test data was not used for model learning
+\* the original data set was split in 60%-20%-20% manner between training, cross validation and test sets, respectively
 
 ### 2.a. Training and cross validation data set accuracy estimation
 
-The below table was obtained from the original training data (which I split into training and cross validation sets).
 
 No. | Algorithm        | Training accuracy | CV accuracy | CV used | Comments
 ----|------------------|-------------------|-------------|---------|---------
@@ -38,7 +37,7 @@ No. | Algorithm        | Training accuracy | CV accuracy | CV used | Comments
 
 ## 3. Models building
 
-A part of the original data was held out as cross validation data. The original test data was not used for model learning. Standard data cleaning and partitioning was done. Only cross validated models good accuracy will be presented in this section.
+20% of the original data was held out as cross validation data. Additional 20% was held out as test data and was not used for model learning. Standard data cleaning and partitioning was done. Only top two cross validated models with good accuracy will be presented in this section.
 
 ### 3.a. Data cleaning
 
@@ -52,12 +51,15 @@ data <- data[, !names(data) %in% c("V1", "num_window", "new_window", "raw_timest
 
 ### 3.b. Creating data partitions
 
-70% of the original data was used to create the training set, and the remaining 30% - the cross validation set. Seed of *1234* was used when creating the data partitions. Original test data was not used for model learning.
+60% of the original data was used to create the training set, 20% - the cross validation set and last 20% - the test set. Seed of *1234* was used when creating the data partitions. Test data was not used for model learning.
 ```{r eval=FALSE}
 set.seed(1234)
-inTrainig <- createDataPartition(data$classe,p=0.7,list = FALSE)
-training <- data[inTrainig,]
-test <- data[-inTrainig,]
+in_trainig <- createDataPartition(data$classe,p=0.6,list = FALSE)
+training <- data[in_trainig,] ## training set
+validation_test <- data[-in_trainig,]
+in_validation <- createDataPartition(validation_test$classe,p=0.5,list = FALSE)
+validation <- validation_test[in_validation,] ## cross validation set
+test <- validation_test[-in_validation,] ## test set
 ```
 
 ### 3.c. Models
@@ -67,28 +69,33 @@ Only top two models are presented below.
 ```{r eval=FALSE}
 ## fold1
 bagged2 <- randomForest(classe~.,data = training, mtry=length(training)-1, ntree=500, importance=T)
-bagged2.pred <- predict(bagged2,newdata=test)
+bagged2.pred <- predict(bagged2,newdata=validation)
 #### fold2
-bagged2.f2 <- randomForest(classe~.,data = test, mtry=length(test)-1, ntree=500, importance=T)
+bagged2.f2 <- randomForest(classe~.,data = validation, mtry=length(validation)-1, ntree=500, importance=T)
 bagged2.f2.pred <- predict(bagged2,newdata=training)
 ## cv accuracy = 0.9976557
-sum(diag(table(bagged2.pred,test$classe)),diag(table(bagged2.f2.pred,training$classe)))/sum(nrow(training),nrow(test))
+sum(diag(table(bagged2.pred,validation$classe)),diag(table(bagged2.f2.pred,training$classe)))/sum(nrow(training),nrow(validation))
 ```
 2. Random forest4
 ```{r eval=FALSE}
 ## fold1
-rf2 <- randomForest(classe~.,data = training, mtry=3, ntree=500, importance=T)
-rf2.pred <- predict(rf2,newdata=test)
+rf4 <- randomForest(classe~.,data = training, mtry=3, ntree=500, importance=T)
+rf4.pred <- predict(rf4,newdata=validation)
 ## fold2
-rf2.f2 <- randomForest(classe~.,data = test, mtry=3, ntree=500, importance=T)
-rf2.f2.pred <- predict(rf2.f2,newdata=training)
+rf4.f2 <- randomForest(classe~.,data = validation, mtry=3, ntree=500, importance=T)
+rf4.f2.pred <- predict(rf4.f2,newdata=training)
 ## cv accuracy = 0.9857813
-sum(diag(table(rf2.pred,test$classe)),diag(table(rf2.f2.pred,training$classe)))/sum(nrow(test),nrow(training))
+sum(diag(table(rf4.pred,validation$classe)),diag(table(rf4.f2.pred,training$classe)))/sum(nrow(validation),nrow(training))
 ```
 
 
 ## 4. Use of cross validation
-Due to computational reasons, 2-fold cross validation (i.e. holdout) was applied to estimate accuracy in the cross validation step. Two top randomforest models were aditionally 10-fold cross validated to asses the errors more accurately and choose the best one.
+Due to computational reasons, 2-fold cross validation (i.e. holdout) was applied to estimate accuracy in the cross validation step. 
 
 ## 5. Expected out of sample error
-The expected out of sample error is approx. 0.24% per the test set, which thankfully nearly equals cross validation error.
+The expected out of sample error is approx. 1.50% per the test set.
+```{r eval=FALSE}
+test_prediction <- predict(bagged2,newdata=test)
+1-sum(diag(table(test_prediction,test$classe)))/nrow(test)
+## error = 0.0150395
+```

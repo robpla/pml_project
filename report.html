@@ -70,11 +70,10 @@ img {
 </div>
 <div id="models-overview" class="section level2">
 <h2>2. Models overview</h2>
-<p>Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, test and validation accuracies* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the <strong>best accuracy</strong> on the cross validation set is in <strong>bold</strong> font. This algorithm was later applied to the test data.</p>
-<p>* 30% of the original training data was used as cross validation data; the original test data was not used for model learning</p>
+<p>Due to the nature of the problem, classification algorithms were applied. Below is a table with the algorithms, training and validation accuracies* (accuracy = 1 - out_of_sample_error), cross validation performed and a brief comment. The cross-validated model with the <strong>best accuracy</strong> on the cross validation set is in <strong>bold</strong> font. This algorithm was later applied to the test data.</p>
+<p>* the original data set was split in 60%-20%-20% manner between training, cross validation and test sets, respectively</p>
 <div id="a.-training-and-cross-validation-data-set-accuracy-estimation" class="section level3">
 <h3>2.a. Training and cross validation data set accuracy estimation</h3>
-<p>The below table was obtained from the original training data (which I split into training and cross validation sets).</p>
 <table>
 <thead>
 <tr class="header">
@@ -157,7 +156,7 @@ img {
 </div>
 <div id="models-building" class="section level2">
 <h2>3. Models building</h2>
-<p>A part of the original data was held out as cross validation data. The original test data was not used for model learning. Standard data cleaning and partitioning was done. Only cross validated models good accuracy will be presented in this section.</p>
+<p>20% of the original data was held out as cross validation data. Additional 20% was held out as test data and was not used for model learning. Standard data cleaning and partitioning was done. Only top two cross validated models with good accuracy will be presented in this section.</p>
 <div id="a.-data-cleaning" class="section level3">
 <h3>3.a. Data cleaning</h3>
 <p>Columns with more than 50% missing data were removed from the training and cross validation set. Additionally, id (<em>V1</em>), windows and timestamps data were removed.</p>
@@ -168,43 +167,49 @@ data &lt;- data[, !names(data) %in% c(&quot;V1&quot;, &quot;num_window&quot;, &q
 </div>
 <div id="b.-creating-data-partitions" class="section level3">
 <h3>3.b. Creating data partitions</h3>
-<p>70% of the original data was used to create the training set, and the remaining 30% - the cross validation set. Seed of <em>1234</em> was used when creating the data partitions. Original test data was not used for model learning.</p>
+<p>60% of the original data was used to create the training set, 20% - the cross validation set and last 20% - the test set. Seed of <em>1234</em> was used when creating the data partitions. Test data was not used for model learning.</p>
 <pre class="r"><code>set.seed(1234)
-inTrainig &lt;- createDataPartition(data$classe,p=0.7,list = FALSE)
-training &lt;- data[inTrainig,]
-test &lt;- data[-inTrainig,]</code></pre>
+in_trainig &lt;- createDataPartition(data$classe,p=0.6,list = FALSE)
+training &lt;- data[in_trainig,] ## training set
+validation_test &lt;- data[-in_trainig,]
+in_validation &lt;- createDataPartition(validation_test$classe,p=0.5,list = FALSE)
+validation &lt;- validation_test[in_validation,] ## cross validation set
+test &lt;- validation_test[-in_validation,] ## test set</code></pre>
 </div>
 <div id="c.-models" class="section level3">
 <h3>3.c. Models</h3>
 <p>Only top two models are presented below.<br />1. Bagged tree2</p>
 <pre class="r"><code>## fold1
 bagged2 &lt;- randomForest(classe~.,data = training, mtry=length(training)-1, ntree=500, importance=T)
-bagged2.pred &lt;- predict(bagged2,newdata=test)
+bagged2.pred &lt;- predict(bagged2,newdata=validation)
 #### fold2
-bagged2.f2 &lt;- randomForest(classe~.,data = test, mtry=length(test)-1, ntree=500, importance=T)
+bagged2.f2 &lt;- randomForest(classe~.,data = validation, mtry=length(validation)-1, ntree=500, importance=T)
 bagged2.f2.pred &lt;- predict(bagged2,newdata=training)
 ## cv accuracy = 0.9976557
-sum(diag(table(bagged2.pred,test$classe)),diag(table(bagged2.f2.pred,training$classe)))/sum(nrow(training),nrow(test))</code></pre>
+sum(diag(table(bagged2.pred,validation$classe)),diag(table(bagged2.f2.pred,training$classe)))/sum(nrow(training),nrow(validation))</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Random forest4</li>
 </ol>
 <pre class="r"><code>## fold1
-rf2 &lt;- randomForest(classe~.,data = training, mtry=3, ntree=500, importance=T)
-rf2.pred &lt;- predict(rf2,newdata=test)
+rf4 &lt;- randomForest(classe~.,data = training, mtry=3, ntree=500, importance=T)
+rf4.pred &lt;- predict(rf4,newdata=validation)
 ## fold2
-rf2.f2 &lt;- randomForest(classe~.,data = test, mtry=3, ntree=500, importance=T)
-rf2.f2.pred &lt;- predict(rf2.f2,newdata=training)
+rf4.f2 &lt;- randomForest(classe~.,data = validation, mtry=3, ntree=500, importance=T)
+rf4.f2.pred &lt;- predict(rf4.f2,newdata=training)
 ## cv accuracy = 0.9857813
-sum(diag(table(rf2.pred,test$classe)),diag(table(rf2.f2.pred,training$classe)))/sum(nrow(test),nrow(training))</code></pre>
+sum(diag(table(rf4.pred,validation$classe)),diag(table(rf4.f2.pred,training$classe)))/sum(nrow(validation),nrow(training))</code></pre>
 </div>
 </div>
 <div id="use-of-cross-validation" class="section level2">
 <h2>4. Use of cross validation</h2>
-<p>Due to computational reasons, 2-fold cross validation (i.e. holdout) was applied to estimate accuracy in the cross validation step. Two top randomforest models were aditionally 10-fold cross validated to asses the errors more accurately and choose the best one.</p>
+<p>Due to computational reasons, 2-fold cross validation (i.e. holdout) was applied to estimate accuracy in the cross validation step.</p>
 </div>
 <div id="expected-out-of-sample-error" class="section level2">
 <h2>5. Expected out of sample error</h2>
-<p>The expected out of sample error is approx. 0.24% per the test set, which thankfully nearly equals cross validation error.</p>
+<p>The expected out of sample error is approx. 1.50% per the test set.</p>
+<pre class="r"><code>test_prediction &lt;- predict(bagged2,newdata=test)
+1-sum(diag(table(test_prediction,test$classe)))/nrow(test)
+## error = 0.0150395</code></pre>
 </div>
 
 
